@@ -1,0 +1,94 @@
+/* CSS Variables for Theme System */
+:root {
+  --bg: #f9f9f9;
+  --text: #111;
+  --button-bg: #4CAF50;
+  --button-text: white;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --text: #eee;
+  --button-bg: #333;
+  --button-text: #fff;
+}
+
+/* Base Styles */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+  transition: 0.3s ease;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+}
+
+/* Button and Form Controls */
+button, select {
+  padding: 10px 16px;
+  font-size: 16px;
+  margin: 10px 10px 20px 0;
+  cursor: pointer;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Layout */
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+#content {
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  button, select {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin: 5px 5px 15px 0;
+  }
+  
+  #controls {
+    justify-content: center;
+    gap: 5px;
+  }
+}
+
+/* Accessibility Features */
+button:focus, select:focus {
+  outline: 2px solid var(--button-bg);
+  outline-offset: 2px;
+}
+
+/* Loading State for Voice Selection */
+#voiceSelect:empty::before {
+  content: "Loading voices...";
+  color: var(--text);
+  opacity: 0.7;
+}
