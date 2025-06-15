@@ -149,3 +149,215 @@ function initializeApp() {
 
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+
+// let mediaRecorder;
+// let audioChunks = [];
+
+// function downloadSpeech() {
+//   stopSpeech(); // Stop current playback if any
+
+//   const content = document.getElementById("content").innerText;
+//   const utterance = new SpeechSynthesisUtterance(content);
+
+//   const synth = window.speechSynthesis;
+//   const audioContext = new AudioContext();
+//   const destination = audioContext.createMediaStreamDestination();
+//   const mediaStream = destination.stream;
+
+//   const source = audioContext.createMediaStreamSource(destination.stream);
+//   mediaRecorder = new MediaRecorder(mediaStream);
+//   audioChunks = [];
+
+//   mediaRecorder.ondataavailable = e => {
+//     if (e.data.size > 0) {
+//       audioChunks.push(e.data);
+//     }
+//   };
+
+//   mediaRecorder.onstop = () => {
+//     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+//     const url = URL.createObjectURL(audioBlob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'speech.webm'; // or change to .wav
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     URL.revokeObjectURL(url);
+//   };
+
+//   const synthUtterance = new SpeechSynthesisUtterance(content);
+//   const selectedVoice = document.getElementById("voiceSelect").value;
+//   if (selectedVoice && voices[selectedVoice]) {
+//     synthUtterance.voice = voices[selectedVoice];
+//   }
+
+//   synthUtterance.onstart = () => {
+//     const sourceNode = audioContext.createMediaStreamSource(destination.stream);
+//     sourceNode.connect(audioContext.destination); // Optional: route audio to speakers
+//     mediaRecorder.start();
+//   };
+
+//   synthUtterance.onend = () => {
+//     mediaRecorder.stop();
+//   };
+
+//   // Patch speech to play via AudioContext (this is a workaround, not precise)
+//   const utteranceSource = audioContext.createOscillator(); // Dummy to start context
+//   utteranceSource.connect(destination);
+//   utteranceSource.start();
+//   utteranceSource.stop(audioContext.currentTime + 0.1);
+
+//   synth.speak(synthUtterance);
+// }
+
+
+// function downloadSpeech() {
+//   const content = document.getElementById("content").innerText;
+//   const utterance = new SpeechSynthesisUtterance(content);
+//   const selectedVoiceIndex = document.getElementById("voiceSelect").value;
+
+//   if (selectedVoiceIndex && voices[selectedVoiceIndex]) {
+//     utterance.voice = voices[selectedVoiceIndex];
+//   }
+
+//   const audioContext = new AudioContext();
+//   const destination = audioContext.createMediaStreamDestination();
+//   const synth = window.speechSynthesis;
+
+//   const mediaRecorder = new MediaRecorder(destination.stream);
+//   const audioChunks = [];
+
+//   mediaRecorder.ondataavailable = e => {
+//     if (e.data.size > 0) {
+//       audioChunks.push(e.data);
+//     }
+//   };
+
+//   mediaRecorder.onstop = () => {
+//     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+//     const audioUrl = URL.createObjectURL(audioBlob);
+//     const downloadLink = document.createElement("a");
+//     downloadLink.href = audioUrl;
+//     downloadLink.download = "ai_hustle_speech.webm";
+//     document.body.appendChild(downloadLink);
+//     downloadLink.click();
+//     document.body.removeChild(downloadLink);
+//     URL.revokeObjectURL(audioUrl);
+//   };
+
+//   utterance.onstart = () => {
+//     const sourceNode = audioContext.createMediaStreamSource(destination.stream);
+//     sourceNode.connect(audioContext.destination); // Play sound while recording
+//     mediaRecorder.start();
+//   };
+
+//   utterance.onend = () => {
+//     mediaRecorder.stop();
+//   };
+
+//   // Force audio context to start
+//   const dummySource = audioContext.createOscillator();
+//   dummySource.connect(destination);
+//   dummySource.start();
+//   dummySource.stop(audioContext.currentTime + 0.1);
+
+//   synth.speak(utterance);
+// }
+
+
+// function downloadSpeech() {
+//   const text = document.getElementById("content").innerText.trim();
+
+//   if (text.length === 0) {
+//     alert("No text to read.");
+//     return;
+//   }
+
+//   const maxLength = 200; // Max allowed by Google Translate TTS
+//   const encodedText = encodeURIComponent(text.slice(0, maxLength));
+//   const ttsURL = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodedText}&tl=en`;
+
+//   // Create audio element to play
+//   const audio = new Audio(ttsURL);
+//   audio.play();
+
+//   // Trigger download
+//   const a = document.createElement("a");
+//   a.href = ttsURL;
+//   a.download = "speech.mp3";
+//   document.body.appendChild(a);
+//   a.click();
+//   document.body.removeChild(a);
+// }
+
+function downloadAsMP3() {
+  const downloadBtn = document.getElementById("downloadBtn");
+  const API_KEY = "AIzaSyD-S1MaySuZ5kPc9TwE4ChoJpTit-Vkxdg"; // Replace with your real API key
+  const text = document.getElementById("content").innerText.trim();
+
+  if (text.length === 0) {
+    alert("No text to convert.");
+    return;
+  }
+
+  // Show loader state
+  downloadBtn.disabled = true;
+  const originalText = downloadBtn.innerHTML;
+  downloadBtn.innerHTML = "⏳ Generating...";
+
+  const requestData = {
+    input: { text },
+    voice: {
+      languageCode: "en-US",
+      name: "en-US-Wavenet-D",
+      ssmlGender: "MALE"
+    },
+    audioConfig: {
+      audioEncoding: "MP3"
+    }
+  };
+
+  fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(requestData)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.audioContent) {
+        alert("Failed to generate audio. Please check your API key or quota.");
+        return;
+      }
+
+      // Convert base64 to MP3 Blob
+      const byteCharacters = atob(data.audioContent);
+      const byteArrays = [];
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays.push(byteCharacters.charCodeAt(i));
+      }
+      const audioBlob = new Blob([new Uint8Array(byteArrays)], { type: "audio/mp3" });
+
+      // Trigger file download
+      const url = URL.createObjectURL(audioBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ai_hustle_reader.mp3";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error("Download failed:", err);
+      alert("Error generating audio. Please check the console for details.");
+    })
+    .finally(() => {
+      // Restore button
+      downloadBtn.disabled = false;
+      downloadBtn.innerHTML = originalText;
+    });
+}
